@@ -73,7 +73,7 @@
                     });
                     if(isAble == true){
                         completeSeats[Math.floor(random/seatWidth)][random%seatWidth] = i;
-                        console.log(Math.floor(random/seatWidth)+","+random%seatWidth+"to"+i);
+                        //console.log(Math.floor(random/seatWidth)+","+random%seatWidth+"to"+i);
                         isEnd = true;
                         break;
                     }else{
@@ -86,7 +86,7 @@
         }
 
         //앞 명령 성공의 경우에만 실행
-        if(isEnd == true && 0){
+        if(isEnd == true){
             //일반 자리 배정
             completeSeats.forEach((i,y)=>{
                 i.forEach((j,x)=>{
@@ -110,4 +110,3 @@
         </script>
 </body>
 </html>
-
