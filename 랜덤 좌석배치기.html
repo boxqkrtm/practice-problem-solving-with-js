@@ -9,12 +9,12 @@
     <div id="print"></div>
     <script>
         //기초 변수 선언
-        let seatWidth = 4
+        let seatWidth = 6
         let seatHeight = 5
-        let stuNum = 20;//1~n범위
+        let stuNum = 27;//1~n범위
         let maxRandomLoop = 1000;
         let randomArr = [...Array(stuNum).keys()].map(i => i+1);
-        let blacklist = [1,13,20];//서로 멀리 떨어짐 원함 (최소 상하좌우 한칸 이상)
+        let blacklist = [7,10,12,15,20,24];//서로 멀리 떨어짐 원함 (최소 상하좌우 한칸 이상)
         randomArr = randomArr.filter(
             (value,index,arr)=>{
                 let isBlackList = false;
@@ -54,6 +54,7 @@
         while(isEnd == false && loop1thcnt < maxRandomLoop){ //랜덤으로 x회 시행에도 없을경우 실패처리
             completeSeats = Array(seatHeight).fill().map(() => Array(seatWidth).fill(0));
             blacklist.forEach((i)=>{
+                isEnd = false;
                 let loop2thcnt = 0;
                 while(loop2thcnt < maxRandomLoop){ //랜덤으로 x회 시행에도 없을경우 처음부터 다시 시행
                     let random = Math.floor(Math.random()*stuNum);
@@ -62,16 +63,17 @@
                     deltaY = [0 ,-1, 1, 0, 0,1,-1,-1,1];
                     let isAble = true;
                     [...Array(deltaX.length).keys()].map(j => j).forEach((k)=>{
-                        let x = Math.floor(random/seatWidth)+deltaX[k];
-                        let y = (random%seatWidth)+deltaY[k];
-                        if(x > 0 && x < seatWidth && y > 0 && y < seatHeight){
-                            if(completeSeats[x][y] != 0){
+                        let y = Math.floor(random/seatWidth)+deltaY[k];
+                        let x = (random%seatWidth)+deltaX[k];
+                        if(x >= 0 && x < seatWidth && y >= 0 && y < seatHeight){
+                            if(completeSeats[y][x] != 0){
                                 isAble = false;
                             }
                         }
                     });
                     if(isAble == true){
                         completeSeats[Math.floor(random/seatWidth)][random%seatWidth] = i;
+                        console.log(Math.floor(random/seatWidth)+","+random%seatWidth+"to"+i);
                         isEnd = true;
                         break;
                     }else{
@@ -84,17 +86,16 @@
         }
 
         //앞 명령 성공의 경우에만 실행
-        if(loop1thcnt < maxRandomLoop){
+        if(isEnd == true && 0){
             //일반 자리 배정
-            completeSeats.forEach((i,x)=>{
-                i.forEach((j,y)=>{
+            completeSeats.forEach((i,y)=>{
+                i.forEach((j,x)=>{
                     setTimeout(()=>{
                         if(j == 0 && randomArr.length > 0){
                             let random = Math.floor(Math.random()*randomArr.length-1);
-                            completeSeats[x][y] = randomArr.splice(random, 1);
+                            completeSeats[y][x] = randomArr.splice(random, 1);
                             printAll();
-                            console.log(randomArr);
-                            console.log("["+random+"]"+randomArr[random]);
+                            //console.log(randomArr);
                         }
                     },100*(x+y*seatWidth))
                 });
