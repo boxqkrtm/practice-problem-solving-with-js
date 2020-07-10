@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>랜덤 좌석 배치기</title>
+<meta charset="utf-8">    
+</head>
+<body>
+    <div>출력</div>
+    <div id="print"></div>
+    <script>
+        //기초 변수 선언
+        let seatWidth = 4
+        let seatHeight = 5
+        let stuNum = 20;//1~n범위
+        let maxRandomLoop = 1000;
+        let randomArr = [...Array(stuNum).keys()].map(i => i+1);
+        let blacklist = [1,13,20];//서로 멀리 떨어짐 원함 (최소 상하좌우 한칸 이상)
+        randomArr = randomArr.filter(
+            (value,index,arr)=>{
+                let isBlackList = false;
+                blacklist.forEach((i)=>{
+                    if(i == value) {
+                        isBlackList = true;
+                    }
+                });
+                return isBlackList == false;
+            }
+        );
+        let completeSeats = [];
+
+        //출력함수
+        function printAll(){
+            document.getElementById("print").innerHTML = "총 인원 수:"+stuNum+"<br>";
+            document.getElementById("print").innerHTML += seatWidth+"*"+seatHeight+"의 자리<br>";
+            document.getElementById("print").innerHTML += "같이 앉지 못하도록 떨어뜨려 놓을 리스트<br>";
+            document.getElementById("print").innerHTML += blacklist +"<br>";
+            document.getElementById("print").innerHTML += "완성된 자리" +"<br>";
+            let tabledata = ""
+            tabledata += "<table border='line'>";
+            completeSeats.forEach((i)=>{
+                tabledata += "<tr>";
+                i.forEach((j)=>{
+                    tabledata += "<td>"+j+"</td>";
+                });
+                tabledata += "</tr>";
+            });
+            tabledata += "</table>";
+            document.getElementById("print").innerHTML += tabledata;
+        }
+
+        //멀리 떨어뜨려 놓을 자리 먼저 지정
+        let isEnd = false;
+        let loop1thcnt = 0;
+        while(isEnd == false && loop1thcnt < maxRandomLoop){ //랜덤으로 x회 시행에도 없을경우 실패처리
+            completeSeats = Array(seatHeight).fill().map(() => Array(seatWidth).fill(0));
+            blacklist.forEach((i)=>{
+                let loop2thcnt = 0;
+                while(loop2thcnt < maxRandomLoop){ //랜덤으로 x회 시행에도 없을경우 처음부터 다시 시행
+                    let random = Math.floor(Math.random()*stuNum);
+                    //상하좌우 대각선으로 다른 블랙리스트가 있는지 체크
+                    deltaX = [0 ,0, 0, -1, 1,1,-1,1,-1];
+                    deltaY = [0 ,-1, 1, 0, 0,1,-1,-1,1];
+                    let isAble = true;
+                    [...Array(deltaX.length).keys()].map(j => j).forEach((k)=>{
+                        let x = Math.floor(random/seatWidth)+deltaX[k];
+                        let y = (random%seatWidth)+deltaY[k];
+                        if(x > 0 && x < seatWidth && y > 0 && y < seatHeight){
+                            if(completeSeats[x][y] != 0){
+                                isAble = false;
+                            }
+                        }
+                    });
+                    if(isAble == true){
+                        completeSeats[Math.floor(random/seatWidth)][random%seatWidth] = i;
+                        isEnd = true;
+                        break;
+                    }else{
+                        loop2thcnt++;
+                        continue;
+                    }
+                }
+            });
+            loop1thcnt++;
+        }
+
+        //앞 명령 성공의 경우에만 실행
+        if(loop1thcnt < maxRandomLoop){
+            //일반 자리 배정
+            completeSeats.forEach((i,x)=>{
+                i.forEach((j,y)=>{
+                    setTimeout(()=>{
+                        if(j == 0 && randomArr.length > 0){
+                            let random = Math.floor(Math.random()*randomArr.length-1);
+                            completeSeats[x][y] = randomArr.splice(random, 1);
+                            printAll();
+                            console.log(randomArr);
+                            console.log("["+random+"]"+randomArr[random]);
+                        }
+                    },100*(x+y*seatWidth))
+                });
+            });
+        }else{
+            document.getElementById("print").innerHTML = "너무많은 시도로 실패하였습니다.<br>";
+        }
+
+        //결과 출력
+        printAll();
+        
+        </script>
+</body>
+</html>
+
